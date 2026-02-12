@@ -1,41 +1,43 @@
-name: Storefront 1000036195
-on: [push]
+name: Storefront 1000036195 
+on: [push] 
 
-permissions:
-  contents: read
-  deployments: write
+permissions: 
+  contents: read 
+  deployments: write 
 
-jobs:
-  deploy:
-    name: Deploy to Oxygen
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          check-latest: true
-
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
+jobs: 
+  deploy: 
+    name: Deploy to Oxygen 
+    timeout-minutes: 30 
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4 
+ 
+      - name: Setup node.js 
+        uses: actions/setup-node@v4 
+        with: 
+          node-version: "lts/*" 
+          check-latest: true 
+ 
+      - name: Cache node modules 
+        id: cache-npm 
+        uses: actions/cache@v4 
+        env: 
+          cache-name: cache-node-modules 
+        with: 
+          path: ~/.npm 
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }} 
+          restore-keys: | 
+            ${{ runner.os }}-build-${{ env.cache-name }}- 
             ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and Publish to Oxygen
-        run: npx shopify hydrogen deploy
-        env:
-          SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000036195 }}
+      - name: Deploy to Oxygen
+        uses: Shopify/hydrogen-deploy-action@v1
+        with:
+          # These link the workflow to your specific Shopify store
+          shopify_admin_api_secret: ${{ secrets.SHOPIFY_ADMIN_API_SECRET }}
+          oxygen_deployment_token: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN }}
